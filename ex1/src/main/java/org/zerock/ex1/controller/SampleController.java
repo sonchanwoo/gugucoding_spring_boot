@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SampleController {
 
     @GetMapping("/hello")
-    public String[] hello(){
-        return new String[]{"hello","world"};
+    public String[] hello() {
+        return new String[]{"hello", "world"};
     }
 
 }

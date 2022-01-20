@@ -22,39 +22,39 @@ public class MemoRepositoryTests {
     MemoRepository memoRepository;
 
     @Test
-    public void testClass(){
+    public void testClass() {
         System.out.println(memoRepository.getClass().getName());
     }
 
     @Test
-    public void testInsertDummies(){
-        IntStream.rangeClosed(1,10).forEach(i->{
-            Memo memo = Memo.builder().memoText("sample..."+i).build();
+    public void testInsertDummies() {
+        IntStream.rangeClosed(1, 10).forEach(i -> {
+            Memo memo = Memo.builder().memoText("sample..." + i).build();
             memoRepository.save(memo);//save : 없으면 insert, 있으면 update
         });
     }
 
     @Test
-    public void testSelect(){
+    public void testSelect() {
         Long mno = 10L;
 
         Optional<Memo> result = memoRepository.findById(mno);//findById는 즉시 sql을 실행한다.
 
-        if(result.isPresent()){
+        if (result.isPresent()) {
             Memo memo = result.get();
             System.out.println(memo);
         }
     }
 
     @Test
-    public void testUpdate(){
+    public void testUpdate() {
         Memo memo = Memo.builder().mno(21L).memoText("insert or update ?...").build();
         System.out.println(memoRepository.save(memo));
         //실행결과를 보면 내부적으로 select문 수행하여 해당 @Id가 있는지 확인하고 수행하기 위한 부분이 포함되어 있다.
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() {
         Long mno = 10l;
 
         memoRepository.deleteById(mno);//없으면 예외를 발생시킨다.
@@ -62,8 +62,8 @@ public class MemoRepositoryTests {
     }
 
     @Test
-    public void testPageDefault(){
-        Pageable pageable = PageRequest.of(0,10);//0-indexed
+    public void testPageDefault() {
+        Pageable pageable = PageRequest.of(0, 10);//0-indexed
         //1페이지의 10개를 가져와라.
 
         Page<Memo> result = memoRepository.findAll(pageable);
@@ -77,33 +77,14 @@ public class MemoRepositoryTests {
     }
 
     @Test
-    public void testSort(){
+    public void testSort() {
         Sort sort1 = Sort.by("mno").descending();//order by mno desc
         Sort sort2 = Sort.by("memoText").ascending();//order by memoText asc
         Sort sortAll = sort1.and(sort2);//and
 
-        Pageable pageable = PageRequest.of(0,10, sortAll);//정렬 조건 추가한 오버라이딩함수
+        Pageable pageable = PageRequest.of(0, 10, sortAll);//정렬 조건 추가한 오버라이딩함수
 
         Page<Memo> result = memoRepository.findAll(pageable);
-
-        result.get().forEach(memo->{
-            System.out.println(memo);
-        });
-    }
-
-    @Test
-    public void testQueryMethods(){
-        List<Memo> list = memoRepository.findByMnoBetweenOrderByMnoDesc(13l,19l);
-
-        for(Memo memo : list)
-            System.out.println(memo);
-    }
-
-    @Test
-    public void testQueryMethodsWithPageable(){
-        Pageable pageable = PageRequest.of(0,10,Sort.by("mno").descending());
-
-        Page<Memo> result = memoRepository.findByMnoBetween(13l,19l, pageable);
 
         result.get().forEach(memo -> {
             System.out.println(memo);
@@ -111,12 +92,31 @@ public class MemoRepositoryTests {
     }
 
     @Test
-    public void testJpql1(){
+    public void testQueryMethods() {
+        List<Memo> list = memoRepository.findByMnoBetweenOrderByMnoDesc(13l, 19l);
+
+        for (Memo memo : list)
+            System.out.println(memo);
+    }
+
+    @Test
+    public void testQueryMethodsWithPageable() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("mno").descending());
+
+        Page<Memo> result = memoRepository.findByMnoBetween(13l, 19l, pageable);
+
+        result.get().forEach(memo -> {
+            System.out.println(memo);
+        });
+    }
+
+    @Test
+    public void testJpql1() {
         //memoRepository.getListDesc();
 
-        //Pageable pageable = PageRequest.of(1,10,Sort.by("mno").descending());
-        //Page<Memo> result = memoRepository.getListWithQuery(0l,pageable);
-        //result.get().forEach(memo -> System.out.println(memo));
+        Pageable pageable = PageRequest.of(1,10,Sort.by("mno").descending());
+        Page<Memo> result = memoRepository.getListWithQuery(0l,pageable);
+        result.get().forEach(memo -> System.out.println(memo));
 
         //memoRepository.updateMemoText(1l,"랄랄라");
 
@@ -131,7 +131,7 @@ public class MemoRepositoryTests {
     @Test
     @Commit//rollback 기점
     @Transactional//??
-    public void testDeleteQueryMethods(){
-        memoRepository.deleteMemoByMnoLessThan(5l);//하나씩 삭제됨
-   }
+    public void testDeleteQueryMethods() {
+        //memoRepository.deleteMemoByMnoLessThan(5l);//하나씩 삭제됨
+    }
 }
