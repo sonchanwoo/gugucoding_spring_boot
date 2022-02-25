@@ -57,18 +57,18 @@ public class GuestbookRepositoryTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("gno").descending());
 
-        QGuestbook qGuestbook = QGuestbook.guestbook; //1
+        QGuestbook qGuestbook = QGuestbook.guestbook;
         //Q도메인으로는 필드에 직접접근 가능
 
         String keyword = "1";
 
-        BooleanBuilder builder = new BooleanBuilder();  //2
+        BooleanBuilder builder = new BooleanBuilder();
         //where절 같은 컨테이너
 
-        BooleanExpression expression = qGuestbook.title.contains(keyword); //3
+        BooleanExpression expression = qGuestbook.title.contains(keyword);
         //title like '%1%'
 
-        builder.and(expression); //4
+        builder.and(expression);
         //합체
 
         Page<Guestbook> result = guestbookRepository.findAll(builder, pageable); //5

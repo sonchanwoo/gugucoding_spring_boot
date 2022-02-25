@@ -20,93 +20,85 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class GuestbookController {
 
-    private final GuestbookService service;
+	private final GuestbookService service;
 
+	@GetMapping("/")
+	public String index() {
 
-    @GetMapping("/")
-    public String index() {
+		return "redirect:/guestbook/list";
+	}
 
-        return "redirect:/guestbook/list";
-    }
+	@GetMapping("/list")
+	public void list(PageRequestDTO pageRequestDTO, Model model) {
 
+		log.info("list............." + pageRequestDTO);
 
-    @GetMapping("/list")
-    public void list(PageRequestDTO pageRequestDTO, Model model){
+		model.addAttribute("result", service.getList(pageRequestDTO));
 
-        log.info("list............." + pageRequestDTO);
+	}
 
-        model.addAttribute("result", service.getList(pageRequestDTO));
+	@GetMapping("/register")
+	public void register() {
+		log.info("regiser get...");
+	}
 
-    }
+	@PostMapping("/register")
+	public String registerPost(GuestbookDTO dto, RedirectAttributes redirectAttributes) {
 
-    @GetMapping("/register")
-    public void register(){
-        log.info("regiser get...");
-    }
+		log.info("dto..." + dto);
 
-    @PostMapping("/register")
-    public String registerPost(GuestbookDTO dto, RedirectAttributes redirectAttributes){
+		//새로 추가된 엔티티의 번호
+		Long gno = service.register(dto);
 
-        log.info("dto..." + dto);
+		redirectAttributes.addFlashAttribute("msg", gno);
 
-        //새로 추가된 엔티티의 번호
-        Long gno = service.register(dto);
+		return "redirect:/guestbook/list";
+	}
 
-        redirectAttributes.addFlashAttribute("msg", gno);
+	//@GetMapping("/read")
 
-        return "redirect:/guestbook/list";
-    }
+	@GetMapping({"/read", "/modify"})
+	public void read(long gno, @ModelAttribute("requestDTO") PageRequestDTO requestDTO, Model model) {
 
-    //@GetMapping("/read")
+		log.info("gno: " + gno);
 
-    @GetMapping({"/read", "/modify"})
-    public void read(long gno, @ModelAttribute("requestDTO") PageRequestDTO requestDTO, Model model ){
+		GuestbookDTO dto = service.read(gno);
 
-        log.info("gno: " + gno);
+		model.addAttribute("dto", dto);
 
-        GuestbookDTO dto = service.read(gno);
+	}
 
-        model.addAttribute("dto", dto);
+	@PostMapping("/remove")
+	public String remove(long gno, RedirectAttributes redirectAttributes) {
 
-    }
+		log.info("gno: " + gno);
 
-    @PostMapping("/remove")
-    public String remove(long gno, RedirectAttributes redirectAttributes){
+		service.remove(gno);
 
+		redirectAttributes.addFlashAttribute("msg", gno);
 
-        log.info("gno: " + gno);
+		return "redirect:/guestbook/list";
 
-        service.remove(gno);
+	}
 
-        redirectAttributes.addFlashAttribute("msg", gno);
+	@PostMapping("/modify")
+	public String modify(GuestbookDTO dto,
+		@ModelAttribute("requestDTO") PageRequestDTO requestDTO,
+		RedirectAttributes redirectAttributes) {
 
-        return "redirect:/guestbook/list";
+		log.info("post modify.........................................");
+		log.info("dto: " + dto);
 
-    }
+		service.modify(dto);
 
-    @PostMapping("/modify")
-    public String modify(GuestbookDTO dto,
-                         @ModelAttribute("requestDTO") PageRequestDTO requestDTO,
-                         RedirectAttributes redirectAttributes){
+		redirectAttributes.addAttribute("page", requestDTO.getPage());
+		redirectAttributes.addAttribute("type", requestDTO.getType());
+		redirectAttributes.addAttribute("keyword", requestDTO.getKeyword());
 
+		redirectAttributes.addAttribute("gno", dto.getGno());
 
-        log.info("post modify.........................................");
-        log.info("dto: " + dto);
+		return "redirect:/guestbook/read";
 
-        service.modify(dto);
-
-        redirectAttributes.addAttribute("page",requestDTO.getPage());
-        redirectAttributes.addAttribute("type",requestDTO.getType());
-        redirectAttributes.addAttribute("keyword",requestDTO.getKeyword());
-
-        redirectAttributes.addAttribute("gno",dto.getGno());
-
-
-        return "redirect:/guestbook/read";
-
-    }
-
-
-
+	}
 
 }
